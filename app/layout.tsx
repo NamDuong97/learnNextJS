@@ -9,6 +9,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* sử dụng font đã custom */}
+      {/* Phần children này sẽ được lấy từ layout của các trang con như dashboard, hoặc page.tsx ngang hàng với nó*/}
       <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
