@@ -4,6 +4,7 @@ import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
+// Nguyên file này dùng để thêm vào csdl mới tạo trên vercel neon: thực thi khi truy cập localhost:3000/seed
 async function seedUsers() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await sql`
