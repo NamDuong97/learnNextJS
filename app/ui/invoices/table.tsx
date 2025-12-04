@@ -4,6 +4,9 @@ import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices } from '@/app/lib/data';
 
+// Khi export default rồi thì import với tên nào cũng được Ví dụ:
+// import Table from '@/app/ui/invoices/table';
+
 export default async function InvoicesTable({
   query,
   currentPage,
