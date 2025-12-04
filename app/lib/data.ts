@@ -1,3 +1,5 @@
+// Đây là file backend lấy dữ liệu từ database
+
 import postgres from 'postgres';
 import {
   CustomerField,
@@ -52,9 +54,9 @@ export async function fetchLatestInvoices() {
 
 export async function fetchCardData() {
   try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
+    // Bạn có thể gộp các truy vấn này vào một câu SQL duy nhất.
+    // Tuy nhiên, ở đây chúng tôi cố tình tách chúng ra
+    // để minh họa cách khởi chạy nhiều truy vấn song song trong JavaScript.
     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
     const invoiceStatusPromise = sql`SELECT
@@ -216,3 +218,16 @@ export async function fetchFilteredCustomers(query: string) {
     throw new Error('Failed to fetch customer table.');
   }
 }
+
+// cấu trúc của biến data trong hàm fetchCardData
+// data = [
+//   [  // data[0]
+//     { count: '5' }
+//   ],
+//   [  // data[1]
+//     { count: '12' }
+//   ],
+//   [  // data[2]
+//     { paid: '2000000', pending: '350000' }
+//   ]
+// ];
