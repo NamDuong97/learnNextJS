@@ -131,7 +131,7 @@ export async function deleteInvoice(id: string) {
         revalidatePath('/dashboard/invoices');
     } catch (err) {
         console.error(err);
-        return { message: 'Database Error: Failed to Delete Invoice.' };
+        throw err;
     }
 
     // 3. Không cần redirect vì đang ở trang invoices
