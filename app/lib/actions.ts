@@ -61,9 +61,7 @@ export async function createInvoice(formData: FormData) {
     } catch (error) {
         // We'll also log the error to the console for now
         console.error(error);
-        return {
-            message: 'Database Error: Failed to Create Invoice.',
-        };
+        throw error;
     }
 
     // 5. Clear cache cho route này => để làm mất dữ liệu cũ đã điền ép nextjs phải rerender lại route này
@@ -104,7 +102,8 @@ export async function updateInvoice(id: string, formData: FormData) {
     } catch (error) {
         // We'll also log the error to the console for now
         console.error(error);
-        return { message: 'Database Error: Failed to Update Invoice.' };
+        throw error;
+
     }
 
     // 4. Revalidate và redirect
