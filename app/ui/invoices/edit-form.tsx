@@ -9,6 +9,8 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
+import { updateInvoice } from '@/app/lib/actions';
+
 
 export default function EditInvoiceForm({
   invoice,
@@ -17,8 +19,15 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
+  // action expects một function reference
+  // updateInvoice(id) gọi function ngay lập tức → trả về result, không phải function
+  // Bind invoice.id vào parameter đầu tiên
+  // Xem giải thích chi tiết tại: ./why-bind-in-server-actions.md
+
+  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
   return (
-    <form>
+    // <form action={updateInvoice(id)}>  {/* ← Sai! */}
+    <form action={updateInvoiceWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
