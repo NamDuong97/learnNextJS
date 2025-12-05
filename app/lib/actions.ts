@@ -10,6 +10,8 @@ import postgres from 'postgres';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
 
 // 1. Define schema khớp với database -- định nghĩa kiểu cho các trường giống db
 const FormSchema = z.object({
@@ -160,3 +162,23 @@ export async function deleteInvoice(id: string) {
     // 3. Không cần redirect vì đang ở trang invoices
 }
 //==================END=============================================================================
+
+// ================================ Authentication =========================================================
+export async function authenticate(
+    prevState: string | undefined,
+    formData: FormData,
+) {
+    try {
+        await signIn('credentials', formData);
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.';
+                default:
+                    return 'Something went wrong.';
+            }
+        }
+        throw error;
+    }
+}

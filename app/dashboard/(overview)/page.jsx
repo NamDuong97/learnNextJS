@@ -5,7 +5,7 @@ import { lusitana } from '@/app/ui/fonts';
 import { fetchLatestInvoices } from '@/app/lib/data';
 import { Suspense } from 'react';
 import { RevenueChartSkeleton, CardsSkeleton, LatestInvoicesSkeleton } from '@/app/ui/skeletons';
-
+import { auth } from '@/auth';
 
 export default async function Page() {
     // 3 lời gọi api này dẫn tới việc phải đợi fetchRevenue xong mới gọi đến fetchLatestInvoices cuối cùng
@@ -14,9 +14,15 @@ export default async function Page() {
     // const revenue = await fetchRevenue();
     // const latestInvoices = await fetchLatestInvoices();
     // const { numberOfCustomers, numberOfInvoices, totalPaidInvoices, totalPendingInvoices } = await fetchCardData();
+    const session = await auth();
+
+    if (!session?.user) {
+        redirect('/login');
+    }
 
     return (
         <main>
+            <h1>Welcome, {session.user.email}!</h1>
             <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
                 Dashboard
             </h1>
