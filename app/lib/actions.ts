@@ -126,12 +126,9 @@ export async function deleteInvoice(id: string) {
     try {
         // 1. Delete query
         await sql`DELETE FROM invoices WHERE id = ${id}`;
-
         // 2. Revalidate cache
         // Xoá (bust) cache của một route, để Next.js buộc server render lại dữ liệu mới lần tiếp theo route đó được truy cập
         revalidatePath('/dashboard/invoices');
-
-        return { message: 'Invoice deleted successfully.' };
     } catch (err) {
         console.error(err);
         return { message: 'Database Error: Failed to Delete Invoice.' };
