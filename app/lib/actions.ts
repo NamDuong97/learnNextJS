@@ -14,11 +14,26 @@ import { redirect } from 'next/navigation';
 // 1. Define schema khớp với database -- định nghĩa kiểu cho các trường giống db
 const FormSchema = z.object({
     id: z.string(),
-    customerId: z.string(),
-    amount: z.coerce.number(),        // ← Tự động convert string → number
-    status: z.enum(['pending', 'paid']),
+    customerId: z.string({
+        invalid_type_error: 'Please select a customer.',
+    }),
+    amount: z.coerce
+        .number()
+        .gt(0, { message: 'Please enter an amount greater than $0.' }),
+    status: z.enum(['pending', 'paid'], {
+        invalid_type_error: 'Please select an invoice status.',
+    }),
     date: z.string(),
 });
+
+export type State = {
+    errors?: {
+        customerId?: string[];
+        amount?: string[];
+        status?: string[];
+    };
+    message?: string | null;
+};
 
 // 2. Omit các fields sẽ tự generate - hệ thống tự tạo 2 field id và date
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
@@ -26,32 +41,41 @@ const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 
 // ================================ CREATE =========================================================
-export async function createInvoice(formData: FormData) {
+export async function createInvoice(prevState: State, formData: FormData) {
     // Try Catch này để file error trong \app\dashboard\invoices\error.tsx bắt được và khởi chạy UI error.tsx
+    // 'use server'; server action chỉ riêng action này thôi
+    {
+        // Method 1: .get() cho từng field
+        // const rawFormData = {
+        //     customerId: formData.get('customerId'),
+        //     amount: formData.get('amount'),
+        //     status: formData.get('status'),
+        // };
+        // Method 2: Dùng entries() cho nhiều fields
+        // const rawFormData = Object.fromEntries(formData.entries());
+    }
+
+    // 3. Parse và validate
+    const validatedFields = CreateInvoice.safeParse({
+        customerId: formData.get('customerId'),
+        amount: formData.get('amount'),
+        status: formData.get('status'),
+    });
+
+    // Nếu lỗi thì return về lỗi
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Missing Fields. Failed to Create Invoice.',
+        };
+    }
+
+    // Chuẩn bị dữ liệu để thêm vào database
+    const { customerId, amount, status } = validatedFields.data;
+    const amountInCents = amount * 100;
+    const date = new Date().toISOString().split('T')[0];
+
     try {
-        // 'use server'; server action chỉ riêng action này thôi
-        {
-            // Method 1: .get() cho từng field
-            // const rawFormData = {
-            //     customerId: formData.get('customerId'),
-            //     amount: formData.get('amount'),
-            //     status: formData.get('status'),
-            // };
-            // Method 2: Dùng entries() cho nhiều fields
-            // const rawFormData = Object.fromEntries(formData.entries());
-        }
-
-        // 3. Parse và validate
-        const { customerId, amount, status } = CreateInvoice.parse({
-            customerId: formData.get('customerId'),
-            amount: formData.get('amount'),
-            status: formData.get('status'),
-        });
-        // Convert dollars → cents => $10.50 → 1050 cents
-        const amountInCents = amount * 100;
-        // Tạo date format: "YYYY-MM-DD" => "2025-12-05T14:30:00.000Z" → "2025-12-05"
-        const date = new Date().toISOString().split('T')[0];
-
         // 4. Truy vấn và thêm vào CSDL
         // SQL query với template literals => Tự động escape, tránh SQL injection 
         await sql`
