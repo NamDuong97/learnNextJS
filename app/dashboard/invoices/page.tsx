@@ -6,9 +6,14 @@ import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchInvoicesPages } from '@/app/lib/data';
+import { Metadata } from 'next';
 
 // searchParams sử dụng trên server không cần hook
 //  khác với cách sử dụng ở \app\ui\search.tsx - client
+
+export const metadata: Metadata = {
+    title: 'Invoices',
+};
 
 export default async function Page(props: {
     searchParams?: Promise<{
